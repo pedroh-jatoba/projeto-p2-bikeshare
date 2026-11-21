@@ -13,3 +13,7 @@ bikeshare_data.*
 
 # SO
 .DS_Store
+
+*.ser
+
+*.ser

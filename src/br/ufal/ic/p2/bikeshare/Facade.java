@@ -1,40 +1,52 @@
 package br.ufal.ic.p2.bikeshare;
 
+import br.ufal.ic.p2.bikeshare.exceptions.BikeshareException;
+import br.ufal.ic.p2.bikeshare.services.SistemaBikeshare;
+
+import java.io.*;
+
 /**
- Facade
+ * Facade - Ponto unico de entrada do sistema BIKESHARE.
  */
 public class Facade {
 
     private static final String AINDA_NAO_IMPLEMENTADO = "Ainda não implementado.";
+    private static final String ARQUIVO_DADOS = "bikeshare.ser";
+
+    private SistemaBikeshare sistema;
+
+    public Facade() {
+        this.sistema = carregarSistema();
+    }
 
     // =====================================================================
     // US1 - Cadastro de usuario
     // =====================================================================
 
-    public String criarUsuario(String nome, String email, String senha, String tipo, String cpfOuCnpj) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String criarUsuario(String nome, String email, String senha, String tipo, String cpfOuCnpj) throws BikeshareException {
+        return sistema.criarUsuario(nome, email, senha, tipo, cpfOuCnpj);
     }
 
-    public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj, String razaoSocial) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj, String razaoSocial) throws BikeshareException {
+        return sistema.criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial);
     }
 
     public String criarUsuario(String nome, String email, String senha, String tipo, String cpf,
-                                String plano, String mensalidade) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+                               String plano, String mensalidade) throws BikeshareException {
+        return sistema.criarUsuario(nome, email, senha, tipo, cpf, plano, mensalidade);
     }
 
     public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj,
-                                String razaoSocial, String plano, String mensalidade) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+                               String razaoSocial, String plano, String mensalidade) throws BikeshareException {
+        return sistema.criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial, plano, mensalidade);
     }
 
     // =====================================================================
     // US2 - Consulta de usuario
     // =====================================================================
 
-    public String getAtributoUsuario(String usuario, String atributo) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    public String getAtributoUsuario(String usuario, String atributo) throws BikeshareException {
+        return sistema.getAtributoUsuario(usuario, atributo);
     }
 
     public String getUsuarioPorEmail(String email) {
@@ -190,14 +202,34 @@ public class Facade {
     }
 
     // =====================================================================
-    // Ciclo de vida do sistema
+    // Ciclo de vida do sistema (Persistencia e Reset)
     // =====================================================================
 
     public void zerarSistema() {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+        this.sistema = new SistemaBikeshare();
+        File arquivo = new File(ARQUIVO_DADOS);
+        if (arquivo.exists()) {
+            arquivo.delete();
+        }
     }
 
     public void encerrarSistema() {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARQUIVO_DADOS))) {
+            oos.writeObject(this.sistema);
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao salvar dados do sistema.", e);
+        }
+    }
+
+    private SistemaBikeshare carregarSistema() {
+        File arquivo = new File(ARQUIVO_DADOS);
+        if (!arquivo.exists()) {
+            return new SistemaBikeshare();
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(arquivo))) {
+            return (SistemaBikeshare) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return new SistemaBikeshare();
+        }
     }
 }
