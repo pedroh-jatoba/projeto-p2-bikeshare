@@ -1,14 +1,27 @@
 package br.ufal.ic.p2.bikeshare.services;
 
 import br.ufal.ic.p2.bikeshare.exceptions.AtributoNaoPodeSerAlteradoException;
+import br.ufal.ic.p2.bikeshare.exceptions.BicicletaJaExisteException;
+import br.ufal.ic.p2.bikeshare.exceptions.BicicletaNaoEstaNestaEstacaoException;
+import br.ufal.ic.p2.bikeshare.exceptions.BicicletaNaoExisteException;
+import br.ufal.ic.p2.bikeshare.exceptions.BicicletaNaoPossuiBateriaException;
 import br.ufal.ic.p2.bikeshare.exceptions.BikeshareException;
 import br.ufal.ic.p2.bikeshare.exceptions.EmailJaCadastradoException;
 import br.ufal.ic.p2.bikeshare.exceptions.EmailNuloException;
+import br.ufal.ic.p2.bikeshare.exceptions.EstacaoNaoExisteException;
+import br.ufal.ic.p2.bikeshare.exceptions.IdentificacaoBicicletaNulaException;
+import br.ufal.ic.p2.bikeshare.exceptions.IdentificacaoEstacaoNulaException;
 import br.ufal.ic.p2.bikeshare.exceptions.IdentificacaoUsuarioNulaException;
 import br.ufal.ic.p2.bikeshare.exceptions.MetodoPagamentoInvalidoException;
+import br.ufal.ic.p2.bikeshare.exceptions.NivelBateriaNuloException;
+import br.ufal.ic.p2.bikeshare.exceptions.TipoBicicletaInvalidoException;
 import br.ufal.ic.p2.bikeshare.exceptions.TipoUsuarioInvalidoException;
 import br.ufal.ic.p2.bikeshare.exceptions.UsuarioNaoExisteException;
+import br.ufal.ic.p2.bikeshare.models.Bicicleta;
+import br.ufal.ic.p2.bikeshare.models.BicicletaConvencional;
+import br.ufal.ic.p2.bikeshare.models.BicicletaEletrica;
 import br.ufal.ic.p2.bikeshare.models.Cartao;
+import br.ufal.ic.p2.bikeshare.models.Estacao;
 import br.ufal.ic.p2.bikeshare.models.PessoaFisica;
 import br.ufal.ic.p2.bikeshare.models.PessoaJuridica;
 import br.ufal.ic.p2.bikeshare.models.Pix;
@@ -23,17 +36,23 @@ import java.util.Map;
  * Servico central que mantem o estado e executa as regras de negocio do sistema Bikeshare.
  */
 public class SistemaBikeshare implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     private Map<String, Usuario> usuarios;
     private int contadorUsuarios;
+    private Map<String, Estacao> estacoes;
+    private int contadorEstacoes;
+    private Map<String, Bicicleta> bicicletas;
 
     /**
-     * Inicializa um sistema vazio com contador de identificadores partindo de 1.
+     * Inicializa um sistema vazio com contadores de identificadores partindo de 1.
      */
     public SistemaBikeshare() {
         this.usuarios = new HashMap<>();
         this.contadorUsuarios = 1;
+        this.estacoes = new HashMap<>();
+        this.contadorEstacoes = 1;
+        this.bicicletas = new HashMap<>();
     }
 
     /**
@@ -257,6 +276,194 @@ public class SistemaBikeshare implements Serializable {
     public void removerUsuario(String usuarioId) throws BikeshareException {
         buscarUsuario(usuarioId);
         usuarios.remove(usuarioId);
+    }
+
+    /**
+     * Cadastra uma nova estacao no sistema com identificador sequencial (ex.: {@code E1}).
+     * Cadastros recusados por validacao nao consomem identificador.
+     *
+     * @param nome          nome da estacao
+     * @param endereco      endereco fisico da estacao
+     * @param capacidadeStr capacidade maxima de vagas (inteiro positivo)
+     * @return identificador unico gerado para a estacao
+     * @throws BikeshareException se nome, endereco ou capacidade forem nulos ou invalidos
+     */
+    public String criarEstacao(String nome, String endereco, String capacidadeStr) throws BikeshareException {
+        String id = "E" + contadorEstacoes;
+        Estacao novaEstacao = new Estacao(id, nome, endereco, capacidadeStr);
+        estacoes.put(id, novaEstacao);
+        contadorEstacoes++;
+        return id;
+    }
+
+    /**
+     * Consulta a quantidade de bicicletas disponiveis para retirada em uma estacao.
+     *
+     * @param estacaoId identificador da estacao
+     * @return quantidade textual de bicicletas disponiveis
+     * @throws BikeshareException se o identificador for nulo/vazio ou a estacao nao existir
+     */
+    public String getBicicletasDisponiveis(String estacaoId) throws BikeshareException {
+        Estacao estacao = buscarEstacao(estacaoId);
+        return String.valueOf(estacao.getBicicletasDisponiveis());
+    }
+
+    /**
+     * Consulta a quantidade de vagas livres em uma estacao.
+     *
+     * @param estacaoId identificador da estacao
+     * @return quantidade textual de vagas disponiveis
+     * @throws BikeshareException se o identificador for nulo/vazio ou a estacao nao existir
+     */
+    public String getVagasDisponiveis(String estacaoId) throws BikeshareException {
+        Estacao estacao = buscarEstacao(estacaoId);
+        return String.valueOf(estacao.getVagasDisponiveis());
+    }
+
+    /**
+     * Adiciona uma bicicleta convencional em uma estacao.
+     * Valida os dados da bicicleta antes de verificar a existencia de vaga disponivel.
+     *
+     * @param estacaoId   identificador da estacao de destino
+     * @param bicicletaId identificador unico da bicicleta
+     * @param tipo        tipo da bicicleta (deve ser {@code convencional})
+     * @throws BikeshareException se algum parametro for invalido, a bicicleta ja existir ou a estacao estiver cheia
+     */
+    public void adicionarBicicleta(String estacaoId, String bicicletaId, String tipo) throws BikeshareException {
+        Estacao estacao = buscarEstacao(estacaoId);
+        validarNovaBicicleta(bicicletaId);
+
+        if ("eletrica".equals(tipo)) {
+            throw new NivelBateriaNuloException();
+        }
+        if (!"convencional".equals(tipo)) {
+            throw new TipoBicicletaInvalidoException();
+        }
+
+        Bicicleta novaBicicleta = new BicicletaConvencional(bicicletaId, estacaoId);
+        estacao.adicionarBicicleta(novaBicicleta);
+        bicicletas.put(bicicletaId, novaBicicleta);
+    }
+
+    /**
+     * Adiciona uma bicicleta eletrica com nivel de bateria informado em uma estacao.
+     * Valida os dados da bicicleta antes de verificar a existencia de vaga disponivel.
+     *
+     * @param estacaoId    identificador da estacao de destino
+     * @param bicicletaId  identificador unico da bicicleta
+     * @param tipo         tipo da bicicleta (deve ser {@code eletrica})
+     * @param nivelBateria nivel percentual inicial de bateria (0 a 100)
+     * @throws BikeshareException se algum parametro for invalido, a bicicleta ja existir ou a estacao estiver cheia
+     */
+    public void adicionarBicicleta(String estacaoId, String bicicletaId, String tipo, String nivelBateria) throws BikeshareException {
+        Estacao estacao = buscarEstacao(estacaoId);
+        validarNovaBicicleta(bicicletaId);
+
+        if ("convencional".equals(tipo)) {
+            throw new BicicletaNaoPossuiBateriaException();
+        }
+        if (!"eletrica".equals(tipo)) {
+            throw new TipoBicicletaInvalidoException();
+        }
+
+        Bicicleta novaBicicleta = new BicicletaEletrica(bicicletaId, estacaoId, nivelBateria);
+        estacao.adicionarBicicleta(novaBicicleta);
+        bicicletas.put(bicicletaId, novaBicicleta);
+    }
+
+    /**
+     * Remove uma bicicleta estacionada em uma estacao, liberando a vaga e o identificador da bicicleta.
+     *
+     * @param estacaoId   identificador da estacao onde a bicicleta deve estar
+     * @param bicicletaId identificador da bicicleta a remover
+     * @throws BikeshareException se a estacao ou bicicleta nao existir, ou se a bicicleta nao estiver na estacao
+     */
+    public void removerBicicleta(String estacaoId, String bicicletaId) throws BikeshareException {
+        Estacao estacao = buscarEstacao(estacaoId);
+        buscarBicicleta(bicicletaId);
+
+        if (!estacao.contemBicicleta(bicicletaId)) {
+            throw new BicicletaNaoEstaNestaEstacaoException();
+        }
+
+        estacao.removerBicicleta(bicicletaId);
+        bicicletas.remove(bicicletaId);
+    }
+
+    /**
+     * Consulta o valor de um atributo de uma bicicleta cadastrada.
+     *
+     * @param bicicletaId identificador da bicicleta
+     * @param atributo    nome do atributo desejado
+     * @return valor textual do atributo
+     * @throws BikeshareException se a bicicleta ou o atributo nao existir
+     */
+    public String getAtributoBicicleta(String bicicletaId, String atributo) throws BikeshareException {
+        Bicicleta bicicleta = buscarBicicleta(bicicletaId);
+        return bicicleta.getAtributo(atributo);
+    }
+
+    /**
+     * Consulta o estado operacional atual de uma bicicleta cadastrada.
+     *
+     * @param bicicletaId identificador da bicicleta
+     * @return estado da bicicleta (ex.: {@code disponivel})
+     * @throws BikeshareException se o identificador for nulo/vazio ou a bicicleta nao existir
+     */
+    public String getEstadoBicicleta(String bicicletaId) throws BikeshareException {
+        Bicicleta bicicleta = buscarBicicleta(bicicletaId);
+        return bicicleta.getEstado();
+    }
+
+    /**
+     * Valida se o identificador de uma nova bicicleta e nao nulo e ainda nao esta em uso.
+     *
+     * @param bicicletaId identificador proposto para a bicicleta
+     * @throws BikeshareException se o identificador for nulo/vazio ou ja existir
+     */
+    private void validarNovaBicicleta(String bicicletaId) throws BikeshareException {
+        if (bicicletaId == null || bicicletaId.trim().isEmpty()) {
+            throw new IdentificacaoBicicletaNulaException();
+        }
+        if (bicicletas.containsKey(bicicletaId)) {
+            throw new BicicletaJaExisteException();
+        }
+    }
+
+    /**
+     * Valida o identificador e retorna a bicicleta correspondente no cadastro.
+     *
+     * @param bicicletaId identificador da bicicleta
+     * @return instancia da bicicleta encontrada
+     * @throws BikeshareException se o identificador for nulo/vazio ou a bicicleta nao existir
+     */
+    private Bicicleta buscarBicicleta(String bicicletaId) throws BikeshareException {
+        if (bicicletaId == null || bicicletaId.trim().isEmpty()) {
+            throw new IdentificacaoBicicletaNulaException();
+        }
+        Bicicleta bicicleta = bicicletas.get(bicicletaId);
+        if (bicicleta == null) {
+            throw new BicicletaNaoExisteException();
+        }
+        return bicicleta;
+    }
+
+    /**
+     * Valida o identificador e retorna a estacao correspondente no cadastro.
+     *
+     * @param estacaoId identificador da estacao
+     * @return instancia da estacao encontrada
+     * @throws BikeshareException se o identificador for nulo/vazio ou a estacao nao existir
+     */
+    private Estacao buscarEstacao(String estacaoId) throws BikeshareException {
+        if (estacaoId == null || estacaoId.trim().isEmpty()) {
+            throw new IdentificacaoEstacaoNulaException();
+        }
+        Estacao estacao = estacoes.get(estacaoId);
+        if (estacao == null) {
+            throw new EstacaoNaoExisteException();
+        }
+        return estacao;
     }
 
     /**

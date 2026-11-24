@@ -182,44 +182,106 @@ public class Facade {
     // US5 - Cadastro de estacao
     // =====================================================================
 
-    public String criarEstacao(String nome, String endereco, String capacidade) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Cadastra uma nova estacao no sistema.
+     *
+     * @param nome       nome da estacao
+     * @param endereco   endereco fisico da estacao
+     * @param capacidade capacidade maxima de vagas (inteiro positivo)
+     * @return identificador unico gerado para a estacao
+     * @throws BikeshareException se nome, endereco ou capacidade forem nulos ou invalidos
+     */
+    public String criarEstacao(String nome, String endereco, String capacidade) throws BikeshareException {
+        return sistema.criarEstacao(nome, endereco, capacidade);
     }
 
     // =====================================================================
     // US6 - Gestao de bicicletas na estacao
     // =====================================================================
 
-    public void adicionarBicicleta(String estacao, String bicicleta, String tipo) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Adiciona uma bicicleta convencional a uma estacao.
+     *
+     * @param estacao   identificador da estacao
+     * @param bicicleta identificador unico da bicicleta
+     * @param tipo      tipo da bicicleta ({@code convencional})
+     * @throws BikeshareException se os dados forem invalidos ou a estacao estiver cheia
+     */
+    public void adicionarBicicleta(String estacao, String bicicleta, String tipo) throws BikeshareException {
+        sistema.adicionarBicicleta(estacao, bicicleta, tipo);
     }
 
-    public void adicionarBicicleta(String estacao, String bicicleta, String tipo, String nivelBateria) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Adiciona uma bicicleta eletrica com nivel de bateria a uma estacao.
+     *
+     * @param estacao      identificador da estacao
+     * @param bicicleta    identificador unico da bicicleta
+     * @param tipo         tipo da bicicleta ({@code eletrica})
+     * @param nivelBateria nivel inicial de bateria (0 a 100)
+     * @throws BikeshareException se os dados forem invalidos ou a estacao estiver cheia
+     */
+    public void adicionarBicicleta(String estacao, String bicicleta, String tipo, String nivelBateria) throws BikeshareException {
+        sistema.adicionarBicicleta(estacao, bicicleta, tipo, nivelBateria);
     }
 
-    public void removerBicicleta(String estacao, String bicicleta) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Remove uma bicicleta de uma estacao.
+     *
+     * @param estacao   identificador da estacao
+     * @param bicicleta identificador da bicicleta
+     * @throws BikeshareException se a estacao ou bicicleta nao existir, ou se nao estiver na estacao
+     */
+    public void removerBicicleta(String estacao, String bicicleta) throws BikeshareException {
+        sistema.removerBicicleta(estacao, bicicleta);
     }
 
-    public String getAtributoBicicleta(String bicicleta, String atributo) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Consulta o valor de um atributo de uma bicicleta cadastrada.
+     *
+     * @param bicicleta identificador da bicicleta
+     * @param atributo  nome do atributo desejado
+     * @return valor textual do atributo
+     * @throws BikeshareException se a bicicleta ou o atributo nao existir
+     */
+    public String getAtributoBicicleta(String bicicleta, String atributo) throws BikeshareException {
+        return sistema.getAtributoBicicleta(bicicleta, atributo);
     }
 
     // =====================================================================
     // US7 - Consulta de disponibilidade
     // =====================================================================
 
-    public String getBicicletasDisponiveis(String estacao) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Consulta a quantidade de bicicletas disponiveis para retirada em uma estacao.
+     *
+     * @param estacao identificador unico da estacao
+     * @return quantidade textual de bicicletas disponiveis
+     * @throws BikeshareException se o identificador for nulo ou a estacao nao existir
+     */
+    public String getBicicletasDisponiveis(String estacao) throws BikeshareException {
+        return sistema.getBicicletasDisponiveis(estacao);
     }
 
-    public String getVagasDisponiveis(String estacao) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Consulta a quantidade de vagas livres em uma estacao.
+     *
+     * @param estacao identificador unico da estacao
+     * @return quantidade textual de vagas disponiveis
+     * @throws BikeshareException se o identificador for nulo ou a estacao nao existir
+     */
+    public String getVagasDisponiveis(String estacao) throws BikeshareException {
+        return sistema.getVagasDisponiveis(estacao);
     }
 
-    public String getEstadoBicicleta(String bicicleta) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Consulta o estado operacional atual de uma bicicleta.
+     *
+     * @param bicicleta identificador unico da bicicleta
+     * @return estado atual da bicicleta
+     * @throws BikeshareException se o identificador for nulo ou a bicicleta nao existir
+     */
+    public String getEstadoBicicleta(String bicicleta) throws BikeshareException {
+        return sistema.getEstadoBicicleta(bicicleta);
     }
 
     // =====================================================================
