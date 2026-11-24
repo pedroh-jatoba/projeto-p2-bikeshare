@@ -24,6 +24,26 @@ public abstract class MetodoPagamento implements Serializable {
     public abstract String getTipo();
 
     /**
+     * Valida se o metodo de pagamento permite iniciar uma retirada de bicicleta.
+     * Por padrao, metodos pos-pagos (como {@link Cartao} e {@link Pix}) sempre autorizam.
+     *
+     * @throws BikeshareException se o metodo nao autorizar a retirada
+     */
+    public void validarParaRetirada() throws BikeshareException {
+        // Cartao e Pix autorizam a retirada sem saldo previo.
+    }
+
+    /**
+     * Efetua a cobranca do valor de uma corrida neste metodo de pagamento.
+     *
+     * @param valor valor em reais a cobrar
+     * @throws BikeshareException se nao for possivel quitar a cobranca (ex.: saldo insuficiente)
+     */
+    public void cobrar(double valor) throws BikeshareException {
+        // Cartao e Pix aprovam a cobranca diretamente.
+    }
+
+    /**
      * Consulta um atributo especifico do metodo de pagamento.
      * Subclasses sobrescrevem este metodo para responder apenas aos seus proprios atributos.
      *

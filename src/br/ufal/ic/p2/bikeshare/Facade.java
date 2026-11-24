@@ -38,7 +38,7 @@ public class Facade {
      * @throws BikeshareException em caso de dados invalidos ou e-mail duplicado
      */
     public String criarUsuario(String nome, String email, String senha, String tipo, String cpfOuCnpj) throws BikeshareException {
-        return sistema.criarUsuario(nome, email, senha, tipo, cpfOuCnpj);
+        return sistema.getUsuarioService().criarUsuario(nome, email, senha, tipo, cpfOuCnpj);
     }
 
     /**
@@ -54,7 +54,7 @@ public class Facade {
      * @throws BikeshareException em caso de dados invalidos ou e-mail duplicado
      */
     public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj, String razaoSocial) throws BikeshareException {
-        return sistema.criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial);
+        return sistema.getUsuarioService().criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial);
     }
 
     /**
@@ -72,7 +72,7 @@ public class Facade {
      */
     public String criarUsuario(String nome, String email, String senha, String tipo, String cpf,
                                String plano, String mensalidade) throws BikeshareException {
-        return sistema.criarUsuario(nome, email, senha, tipo, cpf, plano, mensalidade);
+        return sistema.getUsuarioService().criarUsuario(nome, email, senha, tipo, cpf, plano, mensalidade);
     }
 
     /**
@@ -91,7 +91,7 @@ public class Facade {
      */
     public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj,
                                String razaoSocial, String plano, String mensalidade) throws BikeshareException {
-        return sistema.criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial, plano, mensalidade);
+        return sistema.getUsuarioService().criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial, plano, mensalidade);
     }
 
     // =====================================================================
@@ -107,7 +107,7 @@ public class Facade {
      * @throws BikeshareException se o usuario ou o atributo nao existir
      */
     public String getAtributoUsuario(String usuario, String atributo) throws BikeshareException {
-        return sistema.getAtributoUsuario(usuario, atributo);
+        return sistema.getUsuarioService().getAtributoUsuario(usuario, atributo);
     }
 
     /**
@@ -118,7 +118,7 @@ public class Facade {
      * @throws BikeshareException se o e-mail for nulo ou nao corresponder a nenhum usuario
      */
     public String getUsuarioPorEmail(String email) throws BikeshareException {
-        return sistema.getUsuarioPorEmail(email);
+        return sistema.getUsuarioService().getUsuarioPorEmail(email);
     }
 
     // =====================================================================
@@ -134,7 +134,7 @@ public class Facade {
      * @throws BikeshareException em caso de usuario inexistente, atributo nao alteravel ou valor invalido
      */
     public void alterarUsuario(String usuario, String atributo, String valor) throws BikeshareException {
-        sistema.alterarUsuario(usuario, atributo, valor);
+        sistema.getUsuarioService().alterarUsuario(usuario, atributo, valor);
     }
 
     /**
@@ -147,7 +147,7 @@ public class Facade {
      * @throws BikeshareException em caso de usuario inexistente, parametros invalidos ou chave nula
      */
     public void alterarUsuario(String usuario, String atributo, String valor1, String chave) throws BikeshareException {
-        sistema.alterarUsuario(usuario, atributo, valor1, chave);
+        sistema.getUsuarioService().alterarUsuario(usuario, atributo, valor1, chave);
     }
 
     /**
@@ -161,7 +161,7 @@ public class Facade {
      * @throws BikeshareException em caso de usuario inexistente, parametros invalidos ou dados do cartao invalidos
      */
     public void alterarUsuario(String usuario, String atributo, String valor1, String numero, String validade) throws BikeshareException {
-        sistema.alterarUsuario(usuario, atributo, valor1, numero, validade);
+        sistema.getUsuarioService().alterarUsuario(usuario, atributo, valor1, numero, validade);
     }
 
     // =====================================================================
@@ -175,7 +175,7 @@ public class Facade {
      * @throws BikeshareException se o identificador for nulo/vazio ou o usuario nao existir
      */
     public void removerUsuario(String usuario) throws BikeshareException {
-        sistema.removerUsuario(usuario);
+        sistema.getUsuarioService().removerUsuario(usuario);
     }
 
     // =====================================================================
@@ -192,7 +192,7 @@ public class Facade {
      * @throws BikeshareException se nome, endereco ou capacidade forem nulos ou invalidos
      */
     public String criarEstacao(String nome, String endereco, String capacidade) throws BikeshareException {
-        return sistema.criarEstacao(nome, endereco, capacidade);
+        return sistema.getEstacaoService().criarEstacao(nome, endereco, capacidade);
     }
 
     // =====================================================================
@@ -208,7 +208,7 @@ public class Facade {
      * @throws BikeshareException se os dados forem invalidos ou a estacao estiver cheia
      */
     public void adicionarBicicleta(String estacao, String bicicleta, String tipo) throws BikeshareException {
-        sistema.adicionarBicicleta(estacao, bicicleta, tipo);
+        sistema.getBicicletaService().adicionarBicicleta(estacao, bicicleta, tipo);
     }
 
     /**
@@ -221,7 +221,7 @@ public class Facade {
      * @throws BikeshareException se os dados forem invalidos ou a estacao estiver cheia
      */
     public void adicionarBicicleta(String estacao, String bicicleta, String tipo, String nivelBateria) throws BikeshareException {
-        sistema.adicionarBicicleta(estacao, bicicleta, tipo, nivelBateria);
+        sistema.getBicicletaService().adicionarBicicleta(estacao, bicicleta, tipo, nivelBateria);
     }
 
     /**
@@ -232,7 +232,7 @@ public class Facade {
      * @throws BikeshareException se a estacao ou bicicleta nao existir, ou se nao estiver na estacao
      */
     public void removerBicicleta(String estacao, String bicicleta) throws BikeshareException {
-        sistema.removerBicicleta(estacao, bicicleta);
+        sistema.getBicicletaService().removerBicicleta(estacao, bicicleta);
     }
 
     /**
@@ -244,7 +244,7 @@ public class Facade {
      * @throws BikeshareException se a bicicleta ou o atributo nao existir
      */
     public String getAtributoBicicleta(String bicicleta, String atributo) throws BikeshareException {
-        return sistema.getAtributoBicicleta(bicicleta, atributo);
+        return sistema.getBicicletaService().getAtributoBicicleta(bicicleta, atributo);
     }
 
     // =====================================================================
@@ -259,7 +259,7 @@ public class Facade {
      * @throws BikeshareException se o identificador for nulo ou a estacao nao existir
      */
     public String getBicicletasDisponiveis(String estacao) throws BikeshareException {
-        return sistema.getBicicletasDisponiveis(estacao);
+        return sistema.getEstacaoService().getBicicletasDisponiveis(estacao);
     }
 
     /**
@@ -270,7 +270,7 @@ public class Facade {
      * @throws BikeshareException se o identificador for nulo ou a estacao nao existir
      */
     public String getVagasDisponiveis(String estacao) throws BikeshareException {
-        return sistema.getVagasDisponiveis(estacao);
+        return sistema.getEstacaoService().getVagasDisponiveis(estacao);
     }
 
     /**
@@ -281,23 +281,41 @@ public class Facade {
      * @throws BikeshareException se o identificador for nulo ou a bicicleta nao existir
      */
     public String getEstadoBicicleta(String bicicleta) throws BikeshareException {
-        return sistema.getEstadoBicicleta(bicicleta);
+        return sistema.getBicicletaService().getEstadoBicicleta(bicicleta);
     }
 
     // =====================================================================
     // US8 - Retirada de bicicleta
     // =====================================================================
 
-    public String retirarBicicleta(String usuario, String estacao, String bicicleta, String data) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Inicia um aluguel retirando uma bicicleta disponivel de uma estacao.
+     *
+     * @param usuario   identificador do usuario
+     * @param estacao   identificador da estacao de retirada
+     * @param bicicleta identificador da bicicleta
+     * @param data      data e hora de retirada ({@code d/M/uuuu H:mm})
+     * @return identificador unico gerado para o aluguel
+     * @throws BikeshareException se alguma regra de retirada for violada
+     */
+    public String retirarBicicleta(String usuario, String estacao, String bicicleta, String data) throws BikeshareException {
+        return sistema.getAluguelService().retirarBicicleta(usuario, estacao, bicicleta, data);
     }
 
     // =====================================================================
     // US9 - Devolucao de bicicleta
     // =====================================================================
 
-    public void devolverBicicleta(String aluguel, String estacao, String data) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Realiza a devolucao de uma bicicleta encerrando um aluguel em andamento.
+     *
+     * @param aluguel identificador unico do aluguel
+     * @param estacao identificador da estacao de devolucao
+     * @param data    data e hora de devolucao ({@code d/M/uuuu H:mm})
+     * @throws BikeshareException se o aluguel/estacao/data for invalido, a estacao estiver cheia ou faltar saldo
+     */
+    public void devolverBicicleta(String aluguel, String estacao, String data) throws BikeshareException {
+        sistema.getAluguelService().devolverBicicleta(aluguel, estacao, data);
     }
 
     // =====================================================================
@@ -312,8 +330,16 @@ public class Facade {
         throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
     }
 
-    public String getAtributoAluguel(String aluguel, String atributo) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Consulta o valor de um atributo de um aluguel registrado.
+     *
+     * @param aluguel  identificador unico do aluguel
+     * @param atributo nome do atributo desejado
+     * @return valor textual do atributo
+     * @throws BikeshareException se o aluguel ou atributo nao existir, ou estiver em andamento
+     */
+    public String getAtributoAluguel(String aluguel, String atributo) throws BikeshareException {
+        return sistema.getAluguelService().getAtributoAluguel(aluguel, atributo);
     }
 
     // =====================================================================

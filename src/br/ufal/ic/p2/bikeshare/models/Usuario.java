@@ -4,10 +4,14 @@ import br.ufal.ic.p2.bikeshare.exceptions.AtributoNaoExisteException;
 import br.ufal.ic.p2.bikeshare.exceptions.BikeshareException;
 import br.ufal.ic.p2.bikeshare.exceptions.EmailInvalidoException;
 import br.ufal.ic.p2.bikeshare.exceptions.EmailNuloException;
+import br.ufal.ic.p2.bikeshare.exceptions.MetodoPagamentoNaoCadastradoException;
 import br.ufal.ic.p2.bikeshare.exceptions.NomeNuloException;
 import br.ufal.ic.p2.bikeshare.exceptions.PlanoInvalidoException;
 import br.ufal.ic.p2.bikeshare.exceptions.PlanoSemMensalidadeException;
+import br.ufal.ic.p2.bikeshare.exceptions.RemoverUsuarioComAluguelAtivoException;
 import br.ufal.ic.p2.bikeshare.exceptions.SenhaNulaException;
+import br.ufal.ic.p2.bikeshare.exceptions.UsuarioInadimplenteException;
+import br.ufal.ic.p2.bikeshare.exceptions.UsuarioJaPossuiAluguelEmAndamentoException;
 import br.ufal.ic.p2.bikeshare.exceptions.UsuarioNaoUsaCartaoException;
 import br.ufal.ic.p2.bikeshare.exceptions.UsuarioNaoUsaPixException;
 import br.ufal.ic.p2.bikeshare.exceptions.UsuarioNaoUsaSaldoPreCarregadoException;
@@ -248,6 +252,67 @@ public abstract class Usuario implements Serializable {
             throw new UsuarioNaoUsaSaldoPreCarregadoException();
         }
         ((SaldoPreCarregado) this.metodoPagamento).adicionarSaldo(valorStr);
+    }
+
+    /**
+     * Registra uma penalidade financeira sobre o usuario, somando ao total de pendencias
+     * e marcando o estado como {@code inadimplente}.
+     *
+     * @param valor valor positivo da penalidade em reais
+     */
+    public void registrarPenalidade(double valor) {
+        this.totalPendencias += valor;
+        this.estado = "inadimplente";
+    }
+
+    /**
+     * Valida se o usuario esta elegivel para iniciar um novo aluguel
+     * (nao inadimplente e sem outro aluguel em andamento).
+     *
+     * @throws BikeshareException se o usuario estiver inadimplente ou com aluguel ativo
+     */
+    public void validarElegibilidadeParaRetirada() throws BikeshareException {
+        if ("inadimplente".equals(this.estado)) {
+            throw new UsuarioInadimplenteException();
+        }
+        if (this.aluguelAtivo != null) {
+            throw new UsuarioJaPossuiAluguelEmAndamentoException();
+        }
+    }
+
+    /**
+     * Valida se o usuario possui metodo de pagamento apto para iniciar uma retirada.
+     *
+     * @throws BikeshareException se nao houver metodo cadastrado ou se o saldo for insuficiente
+     */
+    public void validarPagamentoParaRetirada() throws BikeshareException {
+        if (this.metodoPagamento == null) {
+            throw new MetodoPagamentoNaoCadastradoException();
+        }
+        this.metodoPagamento.validarParaRetirada();
+    }
+
+    /**
+     * Efetua a cobranca de uma corrida no metodo de pagamento configurado do usuario.
+     *
+     * @param valor valor total em reais a cobrar
+     * @throws BikeshareException se o metodo de pagamento recusar a cobranca
+     */
+    public void cobrarCorrida(double valor) throws BikeshareException {
+        if (this.metodoPagamento != null) {
+            this.metodoPagamento.cobrar(valor);
+        }
+    }
+
+    /**
+     * Valida se o usuario pode ser removido do sistema.
+     *
+     * @throws RemoverUsuarioComAluguelAtivoException se o usuario possuir aluguel em andamento
+     */
+    public void validarParaRemocao() throws RemoverUsuarioComAluguelAtivoException {
+        if (this.aluguelAtivo != null) {
+            throw new RemoverUsuarioComAluguelAtivoException();
+        }
     }
 
     /** @return identificador unico do usuario */

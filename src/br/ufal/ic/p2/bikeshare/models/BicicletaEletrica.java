@@ -2,6 +2,7 @@ package br.ufal.ic.p2.bikeshare.models;
 
 import br.ufal.ic.p2.bikeshare.exceptions.BikeshareException;
 import br.ufal.ic.p2.bikeshare.exceptions.NivelBateriaForaDoIntervaloException;
+import br.ufal.ic.p2.bikeshare.exceptions.NivelBateriaInsuficienteException;
 import br.ufal.ic.p2.bikeshare.exceptions.NivelBateriaNaoNumericoException;
 import br.ufal.ic.p2.bikeshare.exceptions.NivelBateriaNuloException;
 
@@ -14,6 +15,9 @@ public class BicicletaEletrica extends Bicicleta {
 
     /** Percentual minimo de bateria necessario para a bicicleta eletrica ficar disponivel para retirada. */
     public static final int NIVEL_MINIMO_BATERIA = 15;
+
+    /** Cobranca adicional por minuto de uso de bicicleta eletrica. */
+    public static final double ADICIONAL_POR_MINUTO = 0.20;
 
     private int nivelBateria;
 
@@ -50,6 +54,18 @@ public class BicicletaEletrica extends Bicicleta {
     @Override
     public boolean estaDisponivelParaRetirada() {
         return super.estaDisponivelParaRetirada() && this.nivelBateria >= NIVEL_MINIMO_BATERIA;
+    }
+
+    @Override
+    public void validarParaRetirada() throws BikeshareException {
+        if (this.nivelBateria < NIVEL_MINIMO_BATERIA) {
+            throw new NivelBateriaInsuficienteException();
+        }
+    }
+
+    @Override
+    public double calcularAdicional(long minutos) {
+        return minutos * ADICIONAL_POR_MINUTO;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package br.ufal.ic.p2.bikeshare.models;
 
 import br.ufal.ic.p2.bikeshare.exceptions.BikeshareException;
+import br.ufal.ic.p2.bikeshare.exceptions.SaldoInsuficienteException;
 import br.ufal.ic.p2.bikeshare.exceptions.ValorNaoNumericoException;
 import br.ufal.ic.p2.bikeshare.exceptions.ValorNaoPositivoException;
 import br.ufal.ic.p2.bikeshare.exceptions.ValorNuloException;
@@ -47,6 +48,24 @@ public class SaldoPreCarregado extends MetodoPagamento {
     @Override
     public String getTipo() {
         return "saldoPreCarregado";
+    }
+
+    @Override
+    public void validarParaRetirada() throws BikeshareException {
+        if (this.saldo <= 0.0) {
+            throw new SaldoInsuficienteException();
+        }
+    }
+
+    @Override
+    public void cobrar(double valor) throws BikeshareException {
+        if (valor <= 0.0) {
+            return;
+        }
+        if (this.saldo + 1e-9 < valor) {
+            throw new SaldoInsuficienteException();
+        }
+        this.saldo = Math.max(0.0, this.saldo - valor);
     }
 
     @Override

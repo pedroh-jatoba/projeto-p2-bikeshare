@@ -19,6 +19,15 @@ public class Plano implements Serializable {
     /** Mensalidade padrao aplicada quando um usuario migra para o plano assinante. */
     public static final String MENSALIDADE_PADRAO_ASSINANTE = "30.00";
 
+    /** Valor por minuto cobrado no plano avulso. */
+    public static final double VALOR_MINUTO_AVULSO = 0.50;
+
+    /** Franquia gratuita em minutos para o plano assinante. */
+    public static final long FRANQUIA_MINUTOS_ASSINANTE = 60L;
+
+    /** Valor por minuto excedente cobrado no plano assinante. */
+    public static final double VALOR_MINUTO_EXCEDENTE_ASSINANTE = 0.30;
+
     private String tipo;
     private Double mensalidade;
 
@@ -56,6 +65,20 @@ public class Plano implements Serializable {
             }
             this.mensalidade = valor;
         }
+    }
+
+    /**
+     * Calcula a tarifa base da corrida de acordo com o tipo de plano e a duracao em minutos.
+     *
+     * @param minutos duracao total da corrida em minutos
+     * @return tarifa base em reais (sem adicionais da bicicleta)
+     */
+    public double calcularTarifa(long minutos) {
+        if ("assinante".equals(this.tipo)) {
+            long excedente = Math.max(0L, minutos - FRANQUIA_MINUTOS_ASSINANTE);
+            return excedente * VALOR_MINUTO_EXCEDENTE_ASSINANTE;
+        }
+        return minutos * VALOR_MINUTO_AVULSO;
     }
 
     /** @return tipo do plano ({@code avulso} ou {@code assinante}) */

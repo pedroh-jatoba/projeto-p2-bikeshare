@@ -47,6 +47,45 @@ public abstract class Bicicleta implements Serializable {
     }
 
     /**
+     * Valida restricoes especificas do tipo de bicicleta antes da retirada.
+     * Na bicicleta convencional, nao ha restricao adicional alem do estado operacional.
+     *
+     * @throws BikeshareException se a bicicleta nao atender as condicoes de retirada
+     */
+    public void validarParaRetirada() throws BikeshareException {
+        // Bicicletas convencionais nao possuem validacao adicional de bateria.
+    }
+
+    /**
+     * Calcula o valor adicional de tarifa especifico do tipo de bicicleta para a duracao informada.
+     *
+     * @param minutos duracao total da corrida em minutos
+     * @return valor adicional em reais ({@code 0.0} para bicicleta convencional)
+     */
+    public double calcularAdicional(long minutos) {
+        return 0.0;
+    }
+
+    /**
+     * Atualiza o estado operacional da bicicleta ao ser retirada de uma estacao.
+     */
+    public void registrarRetirada() {
+        this.estado = "emUso";
+        this.estacaoId = null;
+    }
+
+    /**
+     * Atualiza o estado e a estacao atual da bicicleta ao ser devolvida.
+     *
+     * @param estacaoDestinoId identificador da estacao de devolucao
+     * @param novoEstado       novo estado operacional ({@code disponivel} ou {@code emManutencao})
+     */
+    public void registrarDevolucao(String estacaoDestinoId, String novoEstado) {
+        this.estado = novoEstado;
+        this.estacaoId = estacaoDestinoId;
+    }
+
+    /**
      * Consulta o valor de um atributo da bicicleta pelo seu nome.
      *
      * @param atributo nome do atributo consultado
