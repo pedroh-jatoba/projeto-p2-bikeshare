@@ -1,52 +1,78 @@
 package br.ufal.ic.p2.bikeshare.models;
 
 import br.ufal.ic.p2.bikeshare.exceptions.BikeshareException;
+import br.ufal.ic.p2.bikeshare.exceptions.MensalidadeNaoNumericaException;
+import br.ufal.ic.p2.bikeshare.exceptions.MensalidadeNegativaException;
+import br.ufal.ic.p2.bikeshare.exceptions.MensalidadeNulaException;
+import br.ufal.ic.p2.bikeshare.exceptions.PlanoInvalidoException;
+import br.ufal.ic.p2.bikeshare.exceptions.PlanoSemMensalidadeException;
+
 import java.io.Serializable;
 import java.util.Locale;
 
+/**
+ * Representa o plano de tarifacao contratado por um usuario ({@code avulso} ou {@code assinante}).
+ */
 public class Plano implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    /** Mensalidade padrao aplicada quando um usuario migra para o plano assinante. */
+    public static final String MENSALIDADE_PADRAO_ASSINANTE = "30.00";
 
     private String tipo;
     private Double mensalidade;
 
+    /**
+     * Cria um plano validando seu tipo e a compatibilidade com o valor de mensalidade.
+     *
+     * @param tipo           tipo do plano ({@code avulso} ou {@code assinante})
+     * @param mensalidadeStr valor textual da mensalidade (deve ser nulo para {@code avulso})
+     * @throws BikeshareException se o tipo ou a mensalidade forem invalidos
+     */
     public Plano(String tipo, String mensalidadeStr) throws BikeshareException {
         if (tipo == null || (!tipo.equals("avulso") && !tipo.equals("assinante"))) {
-            throw new BikeshareException("Plano invalido.");
+            throw new PlanoInvalidoException();
         }
 
         this.tipo = tipo;
 
         if (tipo.equals("avulso")) {
             if (mensalidadeStr != null && !mensalidadeStr.trim().isEmpty()) {
-                throw new BikeshareException("Plano nao possui mensalidade.");
+                throw new PlanoSemMensalidadeException();
             }
             this.mensalidade = null;
         } else { // assinante
             if (mensalidadeStr == null || mensalidadeStr.trim().isEmpty()) {
-                throw new BikeshareException("Mensalidade nao pode ser nula.");
+                throw new MensalidadeNulaException();
             }
             double valor;
             try {
                 valor = Double.parseDouble(mensalidadeStr.trim().replace(",", "."));
             } catch (NumberFormatException e) {
-                throw new BikeshareException("Mensalidade deve ser numerica.");
+                throw new MensalidadeNaoNumericaException();
             }
             if (valor < 0) {
-                throw new BikeshareException("Mensalidade deve ser nao-negativa.");
+                throw new MensalidadeNegativaException();
             }
             this.mensalidade = valor;
         }
     }
 
+    /** @return tipo do plano ({@code avulso} ou {@code assinante}) */
     public String getTipo() {
         return tipo;
     }
 
+    /** @return valor numerico da mensalidade, ou {@code null} se nao houver */
     public Double getMensalidade() {
         return mensalidade;
     }
 
+    /**
+     * Retorna a mensalidade formatada no padrao brasileiro (ex.: {@code 30,00}).
+     *
+     * @return mensalidade formatada, ou {@code null} se o plano nao tiver mensalidade
+     */
     public String getMensalidadeFormatada() {
         if (mensalidade == null) {
             return null;

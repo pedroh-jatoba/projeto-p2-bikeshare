@@ -15,6 +15,9 @@ public class Facade {
 
     private SistemaBikeshare sistema;
 
+    /**
+     * Inicializa a Facade carregando o estado persistido do sistema, se existir.
+     */
     public Facade() {
         this.sistema = carregarSistema();
     }
@@ -23,19 +26,69 @@ public class Facade {
     // US1 - Cadastro de usuario
     // =====================================================================
 
+    /**
+     * Cria um usuario pessoa fisica com plano padrao ({@code avulso}).
+     *
+     * @param nome      nome do usuario
+     * @param email     e-mail unico do usuario
+     * @param senha     senha de acesso
+     * @param tipo      tipo do usuario ({@code pessoaFisica})
+     * @param cpfOuCnpj CPF do usuario
+     * @return identificador unico gerado
+     * @throws BikeshareException em caso de dados invalidos ou e-mail duplicado
+     */
     public String criarUsuario(String nome, String email, String senha, String tipo, String cpfOuCnpj) throws BikeshareException {
         return sistema.criarUsuario(nome, email, senha, tipo, cpfOuCnpj);
     }
 
+    /**
+     * Cria um usuario pessoa juridica com plano padrao ({@code avulso}).
+     *
+     * @param nome        nome de exibicao
+     * @param email       e-mail unico do usuario
+     * @param senha       senha de acesso
+     * @param tipo        tipo do usuario ({@code pessoaJuridica})
+     * @param cnpj        CNPJ da empresa
+     * @param razaoSocial razao social da empresa
+     * @return identificador unico gerado
+     * @throws BikeshareException em caso de dados invalidos ou e-mail duplicado
+     */
     public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj, String razaoSocial) throws BikeshareException {
         return sistema.criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial);
     }
 
+    /**
+     * Cria um usuario pessoa fisica com plano e mensalidade informados.
+     *
+     * @param nome        nome do usuario
+     * @param email       e-mail unico do usuario
+     * @param senha       senha de acesso
+     * @param tipo        tipo do usuario ({@code pessoaFisica})
+     * @param cpf         CPF do usuario
+     * @param plano       tipo do plano
+     * @param mensalidade valor da mensalidade
+     * @return identificador unico gerado
+     * @throws BikeshareException em caso de dados invalidos ou e-mail duplicado
+     */
     public String criarUsuario(String nome, String email, String senha, String tipo, String cpf,
                                String plano, String mensalidade) throws BikeshareException {
         return sistema.criarUsuario(nome, email, senha, tipo, cpf, plano, mensalidade);
     }
 
+    /**
+     * Cria um usuario pessoa juridica com plano e mensalidade informados.
+     *
+     * @param nome        nome de exibicao
+     * @param email       e-mail unico do usuario
+     * @param senha       senha de acesso
+     * @param tipo        tipo do usuario ({@code pessoaJuridica})
+     * @param cnpj        CNPJ da empresa
+     * @param razaoSocial razao social da empresa
+     * @param plano       tipo do plano
+     * @param mensalidade valor da mensalidade
+     * @return identificador unico gerado
+     * @throws BikeshareException em caso de dados invalidos ou e-mail duplicado
+     */
     public String criarUsuario(String nome, String email, String senha, String tipo, String cnpj,
                                String razaoSocial, String plano, String mensalidade) throws BikeshareException {
         return sistema.criarUsuario(nome, email, senha, tipo, cnpj, razaoSocial, plano, mensalidade);
@@ -45,36 +98,84 @@ public class Facade {
     // US2 - Consulta de usuario
     // =====================================================================
 
+    /**
+     * Consulta o valor de um atributo de um usuario cadastrado.
+     *
+     * @param usuario  identificador unico do usuario
+     * @param atributo nome do atributo desejado
+     * @return valor textual do atributo
+     * @throws BikeshareException se o usuario ou o atributo nao existir
+     */
     public String getAtributoUsuario(String usuario, String atributo) throws BikeshareException {
         return sistema.getAtributoUsuario(usuario, atributo);
     }
 
-    public String getUsuarioPorEmail(String email) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Busca o identificador de um usuario a partir do seu e-mail.
+     *
+     * @param email e-mail do usuario
+     * @return identificador unico do usuario
+     * @throws BikeshareException se o e-mail for nulo ou nao corresponder a nenhum usuario
+     */
+    public String getUsuarioPorEmail(String email) throws BikeshareException {
+        return sistema.getUsuarioPorEmail(email);
     }
 
     // =====================================================================
     // US3 - Alteracao de usuario (inclui metodo de pagamento)
     // =====================================================================
 
-    public void alterarUsuario(String usuario, String atributo, String valor) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Altera um atributo simples de um usuario cadastrado ou ativa {@code saldoPreCarregado}.
+     *
+     * @param usuario  identificador do usuario
+     * @param atributo nome do atributo a alterar
+     * @param valor    novo valor do atributo
+     * @throws BikeshareException em caso de usuario inexistente, atributo nao alteravel ou valor invalido
+     */
+    public void alterarUsuario(String usuario, String atributo, String valor) throws BikeshareException {
+        sistema.alterarUsuario(usuario, atributo, valor);
     }
 
-    public void alterarUsuario(String usuario, String atributo, String valor1, String chave) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Configura o metodo de pagamento Pix para um usuario cadastrado.
+     *
+     * @param usuario  identificador do usuario
+     * @param atributo deve ser {@code metodoPagamento}
+     * @param valor1   deve ser {@code pix}
+     * @param chave    chave Pix do usuario
+     * @throws BikeshareException em caso de usuario inexistente, parametros invalidos ou chave nula
+     */
+    public void alterarUsuario(String usuario, String atributo, String valor1, String chave) throws BikeshareException {
+        sistema.alterarUsuario(usuario, atributo, valor1, chave);
     }
 
-    public void alterarUsuario(String usuario, String atributo, String valor1, String numero, String validade) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Configura o metodo de pagamento por cartao para um usuario cadastrado.
+     *
+     * @param usuario  identificador do usuario
+     * @param atributo deve ser {@code metodoPagamento}
+     * @param valor1   deve ser {@code cartao}
+     * @param numero   numero do cartao
+     * @param validade data de validade no formato {@code MM/AAAA}
+     * @throws BikeshareException em caso de usuario inexistente, parametros invalidos ou dados do cartao invalidos
+     */
+    public void alterarUsuario(String usuario, String atributo, String valor1, String numero, String validade) throws BikeshareException {
+        sistema.alterarUsuario(usuario, atributo, valor1, numero, validade);
     }
 
     // =====================================================================
     // US4 - Remocao de usuario
     // =====================================================================
 
-    public void removerUsuario(String usuario) {
-        throw new UnsupportedOperationException(AINDA_NAO_IMPLEMENTADO);
+    /**
+     * Remove um usuario cadastrado do sistema.
+     *
+     * @param usuario identificador unico do usuario a remover
+     * @throws BikeshareException se o identificador for nulo/vazio ou o usuario nao existir
+     */
+    public void removerUsuario(String usuario) throws BikeshareException {
+        sistema.removerUsuario(usuario);
     }
 
     // =====================================================================
@@ -205,6 +306,9 @@ public class Facade {
     // Ciclo de vida do sistema (Persistencia e Reset)
     // =====================================================================
 
+    /**
+     * Reinicia o sistema em memoria e remove o arquivo de persistencia em disco.
+     */
     public void zerarSistema() {
         this.sistema = new SistemaBikeshare();
         File arquivo = new File(ARQUIVO_DADOS);
@@ -213,6 +317,9 @@ public class Facade {
         }
     }
 
+    /**
+     * Persiste o estado atual do sistema em disco via serializacao.
+     */
     public void encerrarSistema() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARQUIVO_DADOS))) {
             oos.writeObject(this.sistema);
@@ -221,6 +328,11 @@ public class Facade {
         }
     }
 
+    /**
+     * Carrega o estado salvo do sistema a partir do disco ou cria uma instancia nova.
+     *
+     * @return instancia carregada ou nova de {@link SistemaBikeshare}
+     */
     private SistemaBikeshare carregarSistema() {
         File arquivo = new File(ARQUIVO_DADOS);
         if (!arquivo.exists()) {
